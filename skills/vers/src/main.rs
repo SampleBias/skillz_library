@@ -1,3 +1,4 @@
+mod reviews;
 mod schema;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -81,6 +82,7 @@ enum Status {
     Pass,
     Fail,
     Blocked,
+    NotApplicable,
 }
 #[derive(Serialize)]
 struct Check {
@@ -130,6 +132,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut execute = false;
     let mut root = env::current_dir()?;
     let mut report_arg = None;
+    let mut review_policy = None;
+    let mut review_bundle = None;
+    let mut trust_reviews = false;
     let mut args = env::args().skip(1).peekable();
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -144,6 +149,17 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 };
             }
             "--execute" => execute = true,
+            "--review-policy" => {
+                review_policy = Some(PathBuf::from(
+                    args.next().ok_or("--review-policy requires a path")?,
+                ))
+            }
+            "--review-bundle" => {
+                review_bundle = Some(PathBuf::from(
+                    args.next().ok_or("--review-bundle requires a path")?,
+                ))
+            }
+            "--trust-reviews" => trust_reviews = true,
             "--root" => root = PathBuf::from(args.next().ok_or("--root requires a path")?),
             "--report" => {
                 let path = if args.peek().is_some_and(|x| !x.starts_with('-')) {
@@ -154,7 +170,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 report_arg = Some(path);
             }
             "--help" | "-h" => {
-                println!("Usage: vers [--root PATH] [--diff|--full|--strict] [--execute]\n       vers [--root PATH] --report [PATH]\n\n--execute confirms the candidate may run in this environment. Without it, execution is BLOCKED. Report paths are printed on stdout.");
+                println!("Usage: vers [--root PATH] [--diff|--full|--strict] [--execute] [--review-policy PATH --review-bundle PATH --trust-reviews]\n       vers [--root PATH] --report [PATH]\n\n--execute confirms candidate execution is acceptable. --trust-reviews confirms the operator has independently verified review provenance and independence. Report paths are printed on stdout.");
                 return Ok(());
             }
             _ => return Err(format!("unknown argument: {arg}").into()),
@@ -285,6 +301,28 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             && root.join("Cargo.toml").is_file();
         checks.push(check("G0-DISCOVERY", if good {Status::Pass} else {Status::Blocked}, if good {"Git root and Cargo manifest discovered; candidate snapshot recorded."} else {"Need a Git-root Cargo workspace, readable Git state, and no tracked files in excluded target or .vers/reports."}));
     }
+    if source_identity.is_some() {
+        let snapshot_config = snapshot.join(".vers/config.toml");
+        let snapshot_text = match fs::read(&snapshot_config) {
+            Ok(bytes) => Some(bytes),
+            Err(e) if e.kind() == io::ErrorKind::NotFound => Some(Vec::new()),
+            Err(_) => None,
+        };
+        let matches = snapshot_text.as_deref() == Some(config_text.as_bytes());
+        checks.push(check(
+            "G0-CONFIG",
+            if matches {
+                Status::Pass
+            } else {
+                Status::Blocked
+            },
+            if matches {
+                "Loaded configuration matches candidate snapshot."
+            } else {
+                "Configuration changed while the candidate was being snapshotted."
+            },
+        ));
+    }
     for (id, cmd, argv) in [
         ("TOOL-RUSTC", "rustc", vec!["-vV"]),
         ("TOOL-CARGO", "cargo", vec!["--version"]),
@@ -387,30 +425,23 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         }
         checks.push(c);
     }
-    // These gates need independent analysis, feature/target selection and evidence beyond this MVP.
-    checks.push(check("G0-COVERAGE", Status::Blocked, "Workspace members, features, targets, MSRV, build scripts and trust boundaries require independent discovery."));
-    checks.push(check("G2-SAFETY", Status::Blocked, "Independent Rust safety review and applicable Miri coverage not implemented by this harness."));
-    checks.push(check(
-        "G3-CONTRACT",
-        Status::Blocked,
-        "Acceptance criteria and test adequacy require independent review.",
-    ));
-    checks.push(check(
-        "G4-SECURITY",
-        Status::Blocked,
-        "Dependency advisory and security boundary review are not implemented.",
-    ));
-    checks.push(check(
-        "G5-ARCHITECTURE",
-        Status::Blocked,
-        "Independent architecture and quality review is not implemented.",
-    ));
-    for (id, requirement) in [
-        ("G2-MIRI", cfg.checks.miri),
-        ("G3-FUZZ", cfg.checks.fuzz),
-        ("G3-COVERAGE", cfg.checks.coverage),
-    ] {
-        checks.push(check(id, Status::Blocked, &format!("{requirement:?} check: applicability and execution are not established by this MVP.")));
+    // Review authenticity and isolation are the operator's responsibility; names are not signatures.
+    let config_sha256 = hex(&Sha256::digest(config_text.as_bytes()));
+    checks.extend(reviews::load(reviews::ReviewContext {
+        root: &root,
+        out: &out_dir,
+        policy_path: review_policy.as_deref(),
+        bundle_path: review_bundle.as_deref(),
+        trusted: trust_reviews,
+        source: source_identity.as_deref(),
+        config: &config_sha256,
+        conditional: [cfg.checks.miri, cfg.checks.fuzz, cfg.checks.coverage],
+    }));
+    for review in checks
+        .iter()
+        .filter(|c| reviews::REVIEW_IDS.contains(&c.id.as_str()) && c.status == Status::Fail)
+    {
+        findings.push(finding(review, "review"));
     }
     if mode == "strict" {
         checks.push(check(

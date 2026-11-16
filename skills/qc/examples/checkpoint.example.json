@@ -55,7 +55,7 @@
       "mandatory": true,
       "status": "PASS",
       "evidence": "fictional-vers-report.json",
-      "detail": "Hypothetical future qualifying VERS report, same candidate and scope; not the v0.1 harness."
+      "detail": "Fictional qualifying VERS report and independent reviews for the same candidate and scope."
     },
     {
       "id": "MILESTONE-REQUIREMENTS",

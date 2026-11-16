@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://samplebias.github.io/skillz_library/vers/report-0.1.schema.json",
-  "title": "VERS verification report v0.1",
+  "$id": "https://samplebias.github.io/skillz_library/vers/report-0.2.schema.json",
+  "title": "VERS verification report v0.2",
   "type": "object",
   "additionalProperties": false,
   "required": ["skill", "version", "mode", "revision", "git_status", "source_sha256", "config_sha256", "source_unchanged", "toolchain", "checks", "findings", "verdict", "next_action"],
   "properties": {
     "skill": {"const": "vers"},
-    "version": {"const": "0.1.0"},
+    "version": {"const": "0.2.0"},
     "mode": {"enum": ["standard", "diff", "full", "strict"]},
     "revision": {"type": ["string", "null"]},
     "git_status": {"type": ["string", "null"]},
