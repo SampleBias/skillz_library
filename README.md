@@ -15,7 +15,7 @@ if you want to go fast, go deep first. throughput without evidence is just expen
 | [amark](skills/amark/SKILL.md) | keeps comments short and real: safety, non-obvious decisions, workarounds, and public contracts |
 | [vers](skills/vers/SKILL.md) | independently verifies; treats the code and the implementer's claims as untrusted, and reports pass / fail / blocked with evidence |
 | [qc](skills/qc/SKILL.md) | the acceptance gate: scores the evidence, decides accept / reject / block, and controls the handoff for human testing |
-| [ut-mode](skills/ut-mode/SKILL.md) | the orchestrator: runs the others in order, loops on actionable failures, and holds on blocks |
+| [ut-mode](skills/ut-mode/SKILL.md) | the orchestrator: runs the others in order, repairs failures, and works through blocks when it can |
 
 ## how i actually use them
 
@@ -31,13 +31,15 @@ flowchart TD
     D -->|Pass| E[QC: assess evidence]
     D -->|Actionable failure| B
     E -->|Changes needed| B
-    D -->|Blocked| F[Hold and report what is missing]
+    D -->|Blocked| F[Diagnose and resolve missing evidence]
     E -->|Blocked| F
+    F -->|Prerequisite resolved| D
+    F -->|External dependency| H[Hold acceptance and report next action]
     E -->|Integrated acceptance| G[Human testing and final sign-off]
     P[PACKET: clarify the request, optional] -.-> A
 ```
 
-blocked means “we don't have the evidence yet.” it does not mean “try again and hope.” human testing and explicit sign-off are still required for completion. qc is a manual specification, not an executable checkpoint controller.
+blocked means “we don't have the evidence yet.” investigate the cause, resolve authorized prerequisites, and continue work that doesn't depend on acceptance. retry after something relevant changes; otherwise report the dependency. human testing and explicit sign-off are still required for completion. qc is a manual specification, not an executable checkpoint controller.
 
 ## failure modes you can try
 
