@@ -1,0 +1,26 @@
+# Starter governance settings. No included program enforces this file.
+version = "0.1.0"
+file_threshold = 85
+milestone_threshold = 90
+critical_always_rejects = true
+mandatory_failure_rejects = true
+missing_mandatory_evidence_blocks = true
+
+[category_maximums]
+correctness = 25
+rust_safety = 25
+testing = 15
+maintainability = 15
+security = 10
+reliability = 10
+
+[severity_deductions]
+critical = 25
+high = 10
+medium = 4
+low = 1
+
+[checkpoint]
+# No arbitrary work interval is enabled; projects may explicitly configure one.
+automatic_work_limit = false
+require_explicit_resume = true

@@ -1,0 +1,9 @@
+# QC Rust skill
+
+QC evaluates evidence for Rust file acceptance, integrated milestones, checkpoints, and human test handoff. It is the final governance gate after PATRS development, AMARK annotation review, and independent VERS verification. It does not independently establish technical correctness or execute a state machine.
+
+Install this directory using your compatible skill host, reload the host, and invoke `$qc` with the candidate, scope, requirements and evidence. If installing from this repository, publish the files first, then use the host's installer with `https://github.com/SampleBias/skillz_library/tree/main/skills/qc`. The starter [qc.toml](qc.toml) sets proposed defaults; changes require agreement and must be recorded in each assessment. Outputs belong in `.qc/reports/` under a trusted evidence root outside the candidate workspace. See [scoring.md](references/scoring.md) for the evidence and VERS hashing constraints.
+
+Read [SKILL.md](SKILL.md) for the workflow, [checkpoints.md](references/checkpoints.md) for pause and resume, and [human-testing.md](references/human-testing.md) for handoff and completion. [report.schema.json](schemas/report.schema.json) specifies the report structure; the [checkpoint example](examples/checkpoint.example.json) is fictional, including its hypothetical VERS pass. The existing VERS v0.1 harness is always overall BLOCKED and cannot satisfy a mandatory overall VERS pass.
+
+There is no included scoring program, JSON Schema validator, checkpoint controller, or GitHub integration. The agent must assess and calculate manually, and must not claim that the skill enforces a pause or verifies a remote push automatically. A future implementation could add deterministic scoring, report validation, atomic persistence, remote revision checks, and a lifecycle state machine.

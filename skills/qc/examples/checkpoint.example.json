@@ -1,0 +1,170 @@
+{
+  "version": "0.1.0",
+  "id": "QC-0042-ILLUSTRATIVE",
+  "assessed_at": "2026-01-01T00:00:00Z",
+  "scope": {
+    "kind": "milestone",
+    "description": "Fictional CLI parser milestone",
+    "requirements": [
+      "CLI-1: parse the agreed arguments"
+    ]
+  },
+  "candidate": {
+    "revision": "1111111111111111111111111111111111111111",
+    "branch": "feature/parser",
+    "git_status": "clean",
+    "snapshot_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "snapshot_method": "Fictional VERS included-source SHA-256; illustrative only",
+    "files": [
+      {
+        "path": "src/parser.rs",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "decision": "ACCEPT",
+        "report": "file-parser.example.json"
+      }
+    ],
+    "external_inputs": [
+      "Fictional Rust toolchain and dependency lockfile identified in verification report"
+    ]
+  },
+  "policy": {
+    "source": "qc.toml defaults; fictional scenario",
+    "file_threshold": 85,
+    "milestone_threshold": 90,
+    "category_maximums": {
+      "correctness": 25,
+      "rust_safety": 25,
+      "testing": 15,
+      "maintainability": 15,
+      "security": 10,
+      "reliability": 10
+    },
+    "severity_deductions": {
+      "critical": 25,
+      "high": 10,
+      "medium": 4,
+      "low": 1
+    },
+    "critical_always_rejects": true,
+    "mandatory_failure_rejects": true,
+    "missing_mandatory_evidence_blocks": true
+  },
+  "checks": [
+    {
+      "id": "VERS-OVERALL",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "fictional-vers-report.json",
+      "detail": "Hypothetical future qualifying VERS report, same candidate and scope; not the v0.1 harness."
+    },
+    {
+      "id": "MILESTONE-REQUIREMENTS",
+      "mandatory": true,
+      "status": "PASS",
+      "evidence": "fictional-integration-review.md",
+      "detail": "Fictional integration review covers CLI-1."
+    }
+  ],
+  "categories": [
+    {
+      "name": "correctness",
+      "maximum": 25,
+      "raw_deductions": 0,
+      "score": 25,
+      "evidence": [
+        "fictional-integration-review.md"
+      ]
+    },
+    {
+      "name": "rust_safety",
+      "maximum": 25,
+      "raw_deductions": 0,
+      "score": 25,
+      "evidence": [
+        "fictional-safety-review.md"
+      ]
+    },
+    {
+      "name": "testing",
+      "maximum": 15,
+      "raw_deductions": 0,
+      "score": 15,
+      "evidence": [
+        "fictional-test-results.md"
+      ]
+    },
+    {
+      "name": "maintainability",
+      "maximum": 15,
+      "raw_deductions": 0,
+      "score": 15,
+      "evidence": [
+        "fictional-maintainability-review.md"
+      ]
+    },
+    {
+      "name": "security",
+      "maximum": 10,
+      "raw_deductions": 0,
+      "score": 10,
+      "evidence": [
+        "fictional-security-review.md"
+      ]
+    },
+    {
+      "name": "reliability",
+      "maximum": 10,
+      "raw_deductions": 4,
+      "score": 6,
+      "evidence": [
+        "fictional-reliability-review.md"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-1",
+      "category": "reliability",
+      "criterion": "noncritical error recovery",
+      "severity": "medium",
+      "deduction": 4,
+      "root_cause": "Fictional optional retry does not recover from a transient error",
+      "locations": [
+        "src/parser.rs:42"
+      ],
+      "evidence": [
+        "fictional-reliability-review.md"
+      ],
+      "severity_rationale": "Noncritical optional operation fails without corrupting data.",
+      "action": "Track recovery improvement; accepted for this fictional milestone."
+    }
+  ],
+  "score": 96,
+  "decision": "ACCEPT",
+  "state": "AWAITING_PUSH_APPROVAL",
+  "next_action": "Review the fictional checkpoint and authorize or perform the push; resume only after remote verification and explicit authorization.",
+  "limitations": [
+    "Illustrative only: paths, hashes, checks, results and approval status are invented."
+  ],
+  "checkpoint": {
+    "completed": [
+      "Fictional CLI parser milestone"
+    ],
+    "outstanding": [
+      "Fictional integration with remaining modules"
+    ],
+    "vers_evidence": [
+      "fictional-vers-report.json"
+    ],
+    "intended_remote": "origin",
+    "intended_ref": "refs/heads/feature/parser",
+    "intended_commit": "1111111111111111111111111111111111111111",
+    "durable_snapshot": "Fictional local commit; remote preservation pending",
+    "approvals": [],
+    "previous_state": "ACCEPTED_MILESTONE",
+    "resume_conditions": [
+      "Verify the expected remote revision and candidate state",
+      "Obtain explicit authorization to resume"
+    ]
+  }
+}
