@@ -1,0 +1,106 @@
+{
+  "version": "0.1.0",
+  "id": "QC-DEMO-FAIL-ILLUSTRATIVE",
+  "assessed_at": "2026-01-01T00:00:00Z",
+  "scope": {
+    "kind": "milestone",
+    "description": "Illustrative demo crate assessment",
+    "requirements": [
+      "Greeting and help output follow the runtime contracts."
+    ]
+  },
+  "candidate": {
+    "revision": null,
+    "branch": null,
+    "git_status": null,
+    "snapshot_sha256": null,
+    "snapshot_method": "Illustrative only; generated runs have different identities.",
+    "files": [],
+    "external_inputs": [
+      "Git, Rust toolchain and local environment vary per run."
+    ]
+  },
+  "policy": {
+    "source": "qc.toml defaults; illustrative scenario",
+    "file_threshold": 85,
+    "milestone_threshold": 90,
+    "category_maximums": {
+      "correctness": 25,
+      "rust_safety": 25,
+      "testing": 15,
+      "maintainability": 15,
+      "security": 10,
+      "reliability": 10
+    },
+    "severity_deductions": {
+      "critical": 25,
+      "high": 10,
+      "medium": 4,
+      "low": 1
+    },
+    "critical_always_rejects": true,
+    "mandatory_failure_rejects": true,
+    "missing_mandatory_evidence_blocks": true
+  },
+  "checks": [
+    {
+      "id": "VERS-OVERALL",
+      "mandatory": true,
+      "status": "FAIL",
+      "evidence": null,
+      "detail": "An illustrative mandatory runtime or test contract failed; review evidence also remains blocked."
+    }
+  ],
+  "categories": [
+    {
+      "name": "correctness",
+      "maximum": 25,
+      "raw_deductions": 0,
+      "score": null,
+      "evidence": []
+    },
+    {
+      "name": "rust_safety",
+      "maximum": 25,
+      "raw_deductions": 0,
+      "score": null,
+      "evidence": []
+    },
+    {
+      "name": "testing",
+      "maximum": 15,
+      "raw_deductions": 0,
+      "score": null,
+      "evidence": []
+    },
+    {
+      "name": "maintainability",
+      "maximum": 15,
+      "raw_deductions": 0,
+      "score": null,
+      "evidence": []
+    },
+    {
+      "name": "security",
+      "maximum": 10,
+      "raw_deductions": 0,
+      "score": null,
+      "evidence": []
+    },
+    {
+      "name": "reliability",
+      "maximum": 10,
+      "raw_deductions": 0,
+      "score": null,
+      "evidence": []
+    }
+  ],
+  "findings": [],
+  "score": null,
+  "decision": "REJECT",
+  "state": "REPAIR",
+  "next_action": "Repair the observed failure and reverify the changed candidate.",
+  "limitations": [
+    "Illustrative expected decision, not a performed QC assessment; no independent reviews or actual candidate identity are recorded."
+  ]
+}

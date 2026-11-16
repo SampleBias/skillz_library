@@ -1,0 +1,16 @@
+version = "0.1"
+timeout_seconds = 120
+
+[[runtime]]
+name = "help"
+argv = ["cargo", "run", "--offline", "--quiet", "--", "--help"]
+expected_exit = 0
+stdout = "usage: greet NAME\n"
+stderr = ""
+
+[[runtime]]
+name = "missing name"
+argv = ["cargo", "run", "--offline", "--quiet", "--"]
+expected_exit = 2
+stdout = ""
+stderr = "missing NAME\n"

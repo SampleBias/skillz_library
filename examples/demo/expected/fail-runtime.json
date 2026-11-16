@@ -1,0 +1,1 @@
+{"verdict":"FAIL","next_action":"TRIAGE_AND_REPAIR","checks":{"G3-TEST":"PASS","G6-RUNTIME-000":"FAIL","G2-SAFETY":"BLOCKED"}}

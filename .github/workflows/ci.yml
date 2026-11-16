@@ -1,0 +1,39 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install lint and schema tools
+        run: |
+          npm install --global markdownlint-cli2@0.18.1
+          python -m pip install 'jsonschema==4.23.0'
+      - name: Lint Markdown
+        run: markdownlint-cli2 '**/*.md' '#**/target/**'
+      - name: Lint shell scripts
+        run: find . -type f -name '*.sh' -not -path '*/target/*' -print0 | xargs -0 -r shellcheck
+      - name: Cache verifier dependencies
+        run: cargo fetch --locked --manifest-path skills/vers/Cargo.toml
+      - name: Run demo and validate report schemas
+        run: python3 examples/demo/run.py --validate-schema
+      - name: Test verifier
+        run: |
+          cargo test --offline --locked --manifest-path skills/vers/Cargo.toml
+          python3 skills/vers/tests/test_harness.py

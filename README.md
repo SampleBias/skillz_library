@@ -1,28 +1,34 @@
-# Skillz Library
+# skillz_library
 
-A collection of reusable agent skills. Each skill lives in its own folder under `skills/` and contains a `SKILL.md` file.
+i'm samplebias. i write rust. i also write a lot of agent prompts that turn into rust. after watching agents cheerfully invent comments, skip verification, and declare victory on a green `cargo test`, i got tired of cleaning up after them.
 
-## Skills
+this is my answer: a small set of skills that put work through implementation, minimal comments, independent verification, and an acceptance gate before anyone gets to call it done.
 
-| Skill | Purpose |
+if you want to go fast, go deep first. throughput without evidence is just expensive slop.
+
+## the skills
+
+| skill | what it actually does |
 | --- | --- |
-| [AMARK](skills/amark/SKILL.md) | Keep Rust comments and documentation minimal, purposeful, and useful for maintenance. |
-| [PACKET](skills/packet/SKILL.md) | Create, improve, or review prompts using Persona, Action, Context, Keywords, Examples, and Target output or Tone. |
-| [PATRS](skills/patrs/SKILL.md) | Develop idiomatic Rust with practical patterns and minimal abstractions. |
-| [QC](skills/qc/SKILL.md) | Govern Rust file and project acceptance, checkpoints, and human test handoff using verification evidence. |
-| [UT_MODE](skills/ut-mode/SKILL.md) | Coordinate end-to-end Rust development, verification, repair, and QC. |
-| [VERS](skills/vers/SKILL.md) | Independently verify Rust projects with executable checks and evidence. |
+| [packet](skills/packet/SKILL.md) | turns a vague request into a prompt that has a chance of producing useful output |
+| [patrs](skills/patrs/SKILL.md) | writes or repairs idiomatic rust without inventing abstractions you don't need |
+| [amark](skills/amark/SKILL.md) | keeps comments short and real: safety, non-obvious decisions, workarounds, and public contracts |
+| [vers](skills/vers/SKILL.md) | independently verifies; treats the code and the implementer's claims as untrusted, and reports pass / fail / blocked with evidence |
+| [qc](skills/qc/SKILL.md) | the acceptance gate: scores the evidence, decides accept / reject / block, and controls the handoff for human testing |
+| [ut-mode](skills/ut-mode/SKILL.md) | the orchestrator: runs the others in order, loops on actionable failures, and holds on blocks |
 
-## UT_MODE: coordinate Rust development
+## how i actually use them
 
-[UT_MODE](skills/ut-mode/SKILL.md) coordinates the Rust skills through implementation, review, verification, and acceptance. Start it with `$ut-mode` and a description of the work.
+start with `$ut-mode`, a description of the work, and what “done” looks like. it loads the others, implements or repairs with patrs, runs amark, verifies with vers, and only then lets qc make a call.
+
+you can also use any of them alone. `$vers` on a crate you don't trust. `$packet` when the request is still fuzzy. `$amark` when the comments have started narrating the code. packet is optional; the rest make up the rust workflow.
 
 ```mermaid
 flowchart TD
     A[Define task and acceptance criteria] --> B[PATRS: implement or repair]
-    B --> C[AMARK: review comments and documentation]
-    C --> D[VERS: verify the candidate]
-    D -->|Pass| E[QC: assess evidence and acceptance]
+    B --> C[AMARK: review comments]
+    C --> D[VERS: verify]
+    D -->|Pass| E[QC: assess evidence]
     D -->|Actionable failure| B
     E -->|Changes needed| B
     D -->|Blocked| F[Hold and report what is missing]
@@ -31,82 +37,40 @@ flowchart TD
     P[PACKET: clarify the request, optional] -.-> A
 ```
 
-After a repair, the changed candidate goes through applicable checks and verification again before QC reassesses it. A blocked gate stays on hold until the missing evidence or dependency is available; it does not automatically trigger a repair loop. Human testing and explicit sign-off are needed for completion.
+blocked means “we don't have the evidence yet.” it does not mean “try again and hope.” human testing and explicit sign-off are still required for completion. qc is a manual specification, not an executable checkpoint controller.
 
-Install `ut-mode`, `patrs`, `amark`, `vers`, and `qc` separately; `packet` is optional. Each skill also works on its own. See the [integration guide](skills/ut-mode/references/integration.md) for installation and handoffs.
+## failure modes you can try
 
-## Use PACKET with Codex
+[the demo](examples/demo/README.md) runs a tiny rust crate through the real harness. it shows a runtime contract catching broken help text while tests pass, a failing unit test, and a block caused by missing independent reviews. it also exercises the pass path with **fabricated review records**: that's a protocol test, not a real independent review or qc acceptance.
 
-PACKET can clarify a request for any task, including a Rust task before UT_MODE starts.
-
-```mermaid
-flowchart LR
-    A[Your request] --> B[Identify useful PACKET elements]
-    B --> C[Create or review the prompt]
-    C --> D[Use it for the task if requested]
+```bash
+python3 examples/demo/run.py
 ```
 
-Install the skill from this repository by asking Codex:
+vers reports an observed mandatory failure as `FAIL`; missing mandatory evidence is `BLOCKED`. when both occur, failure takes precedence and blocked checks remain in the report. qc rejects failed mandatory checks and holds on missing evidence. the [illustrative qc report](skills/qc/examples/checkpoint.example.json) shows the format, not a real acceptance.
+
+## install
+
+install the skills you want; they live under `skills/<name>/`. for packet on codex:
 
 ```text
 $skill-installer Install the skill from https://github.com/SampleBias/skillz_library/tree/main/skills/packet
 ```
 
-Start a new Codex session after installation, then try:
+then start a new session and try `$packet`. install `ut-mode`, `patrs`, `amark`, `vers`, and `qc` separately for the full workflow. see the [host installation guide](docs/integration.md) for codex, claude code, cursor, and grok build.
 
-```text
-$packet Help me create a prompt for a beginner-friendly lesson on budgeting.
+vers can also run directly:
+
+```bash
+skills/vers/scripts/verify.sh --root /path/to/project --execute
 ```
 
-See the [license](LICENSE) for terms.
+read the [vers integration guide](skills/vers/references/integration.md) first. the harness does not sandbox project code. a real pass requires qualifying independent reviews and an operator who has checked their provenance; the harness cannot establish either on its own. strict mode's extra coverage remains blocked.
 
-## VERS: verify Rust projects
+## why these exist
 
-[VERS](skills/vers/SKILL.md) is an independent Rust verification skill. Its harness records Cargo checks, runtime contracts, candidate identity and evidence, and can incorporate qualifying independent reviews before producing a verdict.
+agents are great at producing plausible rust. they are less great at knowing when they are wrong. these skills make the “is this actually good?” step explicit, repeatable, and hard to skip.
 
-```mermaid
-flowchart LR
-    A[Identify candidate and requirements] --> B[Run authorized checks and review]
-    B --> C{Verdict}
-    C -->|Pass| D[Give evidence to QC]
-    C -->|Fail| E[Return findings for repair]
-    C -->|Blocked| F[Report missing verification]
-```
+fork it. improve it. make it yours. if you add a useful check or a better gate, send a PR. the [contributor guide](CONTRIBUTING.md) has the details; [the changelog](CHANGELOG.md) tracks changes.
 
-After these files have been committed and pushed, install it through a compatible skill host from `https://github.com/SampleBias/skillz_library/tree/main/skills/vers`, then reload the host and invoke `$vers`. The verifier can also run directly using `skills/vers/scripts/verify.sh --root /path/to/project --execute`. Read the [integration guide](skills/vers/references/integration.md) before running project code; the harness does not sandbox it.
-
-## PATRS: develop Rust projects
-
-[PATRS](skills/patrs/SKILL.md) guides Rust implementation and repairs using patterns suited to the task. Install it through a compatible skill host from `https://github.com/SampleBias/skillz_library/tree/main/skills/patrs`, reload the host, and invoke `$patrs`. Use `$vers` separately for independent verification when available.
-
-```mermaid
-flowchart LR
-    A[Understand the task] --> B[Implement or repair Rust code]
-    B --> C[Run applicable development checks]
-    C --> D[Hand off for verification]
-```
-
-## AMARK: annotate Rust deliberately
-
-[AMARK](skills/amark/SKILL.md) keeps Rust comments focused on safety, non-obvious decisions, necessary workarounds, and public API contracts. Install it through a compatible skill host from `https://github.com/SampleBias/skillz_library/tree/main/skills/amark` after the changes are published, reload the host, and invoke `$amark`. Use `$patrs` for development, `$amark` for annotation quality, and `$vers` for independent verification; repair findings and return the changed candidate for review.
-
-```mermaid
-flowchart LR
-    A[Review code and existing comments] --> B[Keep essential explanations]
-    B --> C[Fix outdated or unnecessary comments]
-    C --> D[Hand off the candidate for verification]
-```
-
-## QC: govern Rust acceptance and checkpoints
-
-[QC](skills/qc/SKILL.md) evaluates file and integrated project acceptance after PATRS, AMARK, and VERS. It records evidence-based scores and lifecycle decisions and holds when mandatory verification is incomplete. The [skill package](skills/qc/README.md) is a manual specification and starter configuration, not an executable checkpoint controller. After publication, install `skills/qc` through a compatible skill host, reload it, and invoke `$qc`.
-
-```mermaid
-flowchart LR
-    A[Review candidate and evidence] --> B{Acceptance decision}
-    B -->|Accepted| C[Continue or hand off for human testing]
-    B -->|Rejected| D[Return findings for repair]
-    B -->|Blocked| E[Hold for missing evidence]
-```
-
-VERS v0.2 can pass when automated checks and qualifying independent reviews are complete. Reviewer provenance and independence must be verified outside the harness; strict-mode additional coverage remains blocked. QC requires a qualifying VERS pass before acceptance.
+license is MIT. see [LICENSE](LICENSE).
