@@ -1,0 +1,3 @@
+# Cargo build output and local VERS evidence
+**/target/
+.vers/reports/

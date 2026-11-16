@@ -1,0 +1,17 @@
+# Template for a Rust workspace. Add explicit runtime cases like those in
+# skills/vers/examples; an empty contract set keeps runtime verification BLOCKED.
+version = "0.1"
+timeout_seconds = 120
+runtime = []
+
+[checks]
+format = "required"
+compile = "required"
+clippy = "required"
+tests = "required"
+build = "required"
+runtime = "required"
+security = "required"
+miri = "conditional"
+fuzz = "conditional"
+coverage = "conditional"

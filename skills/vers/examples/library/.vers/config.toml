@@ -1,0 +1,9 @@
+version = "0.1"
+timeout_seconds = 120
+
+[[runtime]]
+name = "consumer API"
+argv = ["cargo", "run", "--offline", "--quiet", "--example", "consumer"]
+expected_exit = 0
+stdout = "Some(42)\n"
+stderr = ""

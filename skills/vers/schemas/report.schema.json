@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://samplebias.github.io/skillz_library/vers/report-0.1.schema.json",
+  "title": "VERS verification report v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["skill", "version", "mode", "revision", "git_status", "source_sha256", "config_sha256", "source_unchanged", "toolchain", "checks", "findings", "verdict", "next_action"],
+  "properties": {
+    "skill": {"const": "vers"},
+    "version": {"const": "0.1.0"},
+    "mode": {"enum": ["standard", "diff", "full", "strict"]},
+    "revision": {"type": ["string", "null"]},
+    "git_status": {"type": ["string", "null"]},
+    "source_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "config_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "source_unchanged": {"type": "boolean"},
+    "toolchain": {"type": "array", "items": {"$ref": "#/$defs/check"}},
+    "checks": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/check"}},
+    "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "verdict": {"enum": ["PASS", "FAIL", "BLOCKED"]},
+    "next_action": {"enum": ["ACCEPT", "TRIAGE_AND_REPAIR", "COMPLETE_VERIFICATION"]}
+  },
+  "$defs": {
+    "status": {"enum": ["PASS", "FAIL", "BLOCKED", "NOT_APPLICABLE"]},
+    "check": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "status", "command", "exit_code", "evidence", "detail"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "status": {"$ref": "#/$defs/status"},
+        "command": {"type": "array", "items": {"type": "string"}},
+        "exit_code": {"type": ["integer", "null"]},
+        "evidence": {"type": ["string", "null"]},
+        "detail": {"type": "string"}
+      }
+    },
+    "finding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "severity", "category", "file", "line", "description", "reproduction", "recommended_action"],
+      "properties": {
+        "id": {"type": "string"}, "severity": {"enum": ["critical", "high", "medium", "low", "info"]},
+        "category": {"type": "string"}, "file": {"type": ["string", "null"]},
+        "line": {"type": ["integer", "null"], "minimum": 1}, "description": {"type": "string"},
+        "reproduction": {"type": "string"}, "recommended_action": {"type": "string"}
+      }
+    }
+  }
+}

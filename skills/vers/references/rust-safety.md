@@ -1,0 +1,5 @@
+# Rust safety review (G2)
+
+Inspect every relevant `unsafe` block and impl, including unsafe functions and transitive boundaries. Record location, why unsafe is needed, the invariant, and evidence that every caller upholds it; require an appropriate safety explanation, not just a comment containing the word SAFETY. Check pointer provenance, aliasing, initialization, alignment, validity, lifetimes, ownership transfer, drop behavior, FFI layouts and unwind behavior. Evaluate manual Send/Sync impls, interior mutability, locking order, atomics, cancellation and async blocking. Check numeric overflow, truncation, memory/resource exhaustion, reachable panics and error recovery. `unwrap`, `expect`, and unsafe are not automatically defects; assess context and actual paths.
+
+Run applicable Miri tests in an isolated, compatible environment if installed. Record commands, toolchain, tested paths and outcome. Miri only covers exercised executions; a clean result is not proof of soundness. Missing mandatory evidence is BLOCKED. Distinguish an observed violation from a suspected invariant breach.
