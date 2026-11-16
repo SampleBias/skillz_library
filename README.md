@@ -1,5 +1,7 @@
 # skillz_library
 
+![Noir illustration of UT-MODE and the Rust skills](assets/ut-mode.png)
+
 i'm samplebias. i write rust. i also write a lot of agent prompts that turn into rust. after watching agents cheerfully invent comments, skip verification, and declare victory on a green `cargo test`, i got tired of cleaning up after them.
 
 this is my answer: a small set of skills that put work through implementation, minimal comments, independent verification, and an acceptance gate before anyone gets to call it done.
