@@ -6,6 +6,7 @@ A collection of reusable agent skills. Each skill lives in its own folder under 
 
 | Skill | Purpose |
 | --- | --- |
+| [AMARK](skills/amark/SKILL.md) | Keep Rust comments and documentation minimal, purposeful, and useful for maintenance. |
 | [PACKET](skills/packet/SKILL.md) | Create, improve, or review prompts using Persona, Action, Context, Keywords, Examples, and Target output or Tone. |
 | [PATRS](skills/patrs/SKILL.md) | Develop idiomatic Rust with practical patterns and minimal abstractions. |
 | [VERS](skills/vers/SKILL.md) | Independently verify Rust projects with executable checks and evidence. |
@@ -39,3 +40,7 @@ After these files have been committed and pushed, install it through a compatibl
 ## PATRS: develop Rust projects
 
 [PATRS](skills/patrs/SKILL.md) guides Rust implementation and repairs using patterns suited to the task. Install it through a compatible skill host from `https://github.com/SampleBias/skillz_library/tree/main/skills/patrs`, reload the host, and invoke `$patrs`. Use `$vers` separately for independent verification when available.
+
+## AMARK: annotate Rust deliberately
+
+[AMARK](skills/amark/SKILL.md) keeps Rust comments focused on safety, non-obvious decisions, necessary workarounds, and public API contracts. Install it through a compatible skill host from `https://github.com/SampleBias/skillz_library/tree/main/skills/amark` after the changes are published, reload the host, and invoke `$amark`. Use `$patrs` for development, `$amark` for annotation quality, and `$vers` for independent verification; repair findings and return the changed candidate for review.
